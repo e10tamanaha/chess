@@ -1,7 +1,13 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Dictionary;
+import java.util.Map;
+
+import static chess.ChessGame.TeamColor.*;
 
 /**
  * Represents a single chess piece
@@ -12,7 +18,7 @@ import java.util.Objects;
 public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
-    private final PieceType type;
+    private final ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -53,7 +59,93 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        Map<PieceType, int[][]> pieceTypeMap = Map.of(
+            PieceType.ROOK, new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}},
+            PieceType.BISHOP, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}},
+            PieceType.QUEEN, new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}},
+            PieceType.KING, new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}},
+            PieceType.KNIGHT, new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}
+        );
+
+        if (this.type == PieceType.ROOK || this.type == PieceType.BISHOP || this.type == PieceType.QUEEN) {
+            return straightAndDiagonal(board, myPosition, pieceTypeMap.get(this.type));
+        } else if (this.type == PieceType.KING || this.type == PieceType.KNIGHT) {
+            return kingAndKnight(board, myPosition, pieceTypeMap.get(this.type));
+        }
+
+        return List.of();
+    }
+
+    private Collection<ChessMove> straightAndDiagonal(ChessBoard board, ChessPosition myPosition, int[][] directions) {
+        ChessPosition currentPosition;
+        ChessPiece currentPiece;
+        List<ChessMove> moves = new ArrayList<>();
+
+        for (int[] dir : directions) {
+            int row = myPosition.getRow() + dir[0];
+            int col = myPosition.getColumn() + dir[1];
+
+            while (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
+                currentPosition = new ChessPosition(row, col);
+                currentPiece = board.getPiece(currentPosition);
+
+                if (currentPiece != null) {
+                    if (currentPiece.pieceColor != this.pieceColor) {
+                        moves.add(new ChessMove(myPosition, currentPosition, null));
+                    }
+                    break;
+                }
+
+                moves.add(new ChessMove(myPosition, currentPosition, null));
+                row += dir[0];
+                col += dir[1];
+            }
+        }
+
+        return moves;
+    }
+
+    private Collection<ChessMove> kingAndKnight(ChessBoard board, ChessPosition myPosition, int[][] directions) {
+        int startingRow = myPosition.getRow();
+        int startingCol = myPosition.getColumn();
+        List<ChessMove> moves = new ArrayList<>();
+
+        for (int[] dir : directions) {
+            int currentRow = startingRow + dir[0];
+            int currentCol = startingCol + dir[1];
+            ChessPosition currentPosition = new ChessPosition(currentRow, currentCol);
+            ChessPiece target;
+
+            if (currentRow >= 1 && currentRow <= 8 && currentCol >= 1 && currentCol <= 8) {
+                target = board.getPiece(currentPosition);
+                if (target == null || target.getTeamColor() != this.getTeamColor()) {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(currentRow, currentCol), null));
+                }
+            }
+        }
+
+        return moves;
+    }
+
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        int startingRow = myPosition.getRow();
+        int startingCol = myPosition.getColumn();
+        List<ChessMove> moves = new ArrayList<>();
+        int direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        int firstRow = (pieceColor == ChessGame.TeamColor.BLACK) ? 2 : 7;
+
+        if (startingRow + direction >= 1 && startingRow + )
+    }
+
+    private void addPawnMove(List<ChessMove> moves, ChessPosition start, ChessPosition end) {
+        if (end.getRow() == 8 || end.getRow() == 1) {
+            moves.add(start, end, PieceType ROOK);
+            moves.add(start, end, PieceType BISHOP);
+            moves.add(start, end, PieceType QUEEN);
+            moves.add(start, end, PieceType KNIGHT);
+        } else {
+            moves.add(start, end, null);
+        }
     }
 
     @Override 
