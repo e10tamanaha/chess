@@ -71,9 +71,9 @@ public class ChessPiece {
             return straightAndDiagonal(board, myPosition, pieceTypeMap.get(this.type));
         } else if (this.type == PieceType.KING || this.type == PieceType.KNIGHT) {
             return kingAndKnight(board, myPosition, pieceTypeMap.get(this.type));
+        } else {
+            return pawnMoves(board, myPosition);
         }
-
-        return List.of();
     }
 
     private Collection<ChessMove> straightAndDiagonal(ChessBoard board, ChessPosition myPosition, int[][] directions) {
@@ -132,19 +132,46 @@ public class ChessPiece {
         int startingCol = myPosition.getColumn();
         List<ChessMove> moves = new ArrayList<>();
         int direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
-        int firstRow = (pieceColor == ChessGame.TeamColor.BLACK) ? 2 : 7;
+        int beforeMoving = (pieceColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
+        int nextRow = startingRow + direction;
 
-        if (startingRow + direction >= 1 && startingRow + )
+        if (isOnBoard(nextRow, startingCol)) {
+            ChessPosition oneAhead = new ChessPosition(nextRow, startingCol);
+            if (board.getPiece(oneAhead) == null) {
+                addPawnMove(moves, myPosition, oneAhead);
+
+                ChessPosition twoAhead = new ChessPosition(startingRow + 2 * direction, startingCol);
+                if (startingRow == beforeMoving && board.getPiece(twoAhead) == null) {
+                    addPawnMove(moves, myPosition, twoAhead);
+                }
+            }
+        }
+
+        for (int offset : new int[]{1, -1}) {
+            if (isOnBoard(nextRow, startingCol + offset)) {
+                ChessPosition diagonalPosition = new ChessPosition(nextRow, startingCol + offset);
+                ChessPiece diagonalPiece = board.getPiece(diagonalPosition);
+
+                if(diagonalPiece != null && diagonalPiece.getTeamColor() != this.getTeamColor()) {
+                    addPawnMove(moves, myPosition, diagonalPosition);
+                }
+            }
+        }
+
+        return moves;
+    }
+
+    private boolean isOnBoard(int row, int col) {
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
     private void addPawnMove(List<ChessMove> moves, ChessPosition start, ChessPosition end) {
         if (end.getRow() == 8 || end.getRow() == 1) {
-            moves.add(start, end, PieceType ROOK);
-            moves.add(start, end, PieceType BISHOP);
-            moves.add(start, end, PieceType QUEEN);
-            moves.add(start, end, PieceType KNIGHT);
+            for (PieceType promo : new PieceType[]{PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT}) {
+                moves.add(new ChessMove(start, end, promo));
+            }
         } else {
-            moves.add(start, end, null);
+            moves.add(new ChessMove(start, end, null));
         }
     }
 
