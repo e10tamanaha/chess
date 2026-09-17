@@ -76,6 +76,13 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Given a set of directions, calculates all positions a chess piece can move to that are in a
+     * straight or diagonal line.
+     * 
+     * @param board, @param myPosition, @param directions
+     * @return Collection of valid moves in straight and/or diagonal line
+     */
     private Collection<ChessMove> straightAndDiagonal(ChessBoard board, ChessPosition myPosition, int[][] directions) {
         ChessPosition currentPosition;
         ChessPiece currentPiece;
@@ -85,7 +92,7 @@ public class ChessPiece {
             int row = myPosition.getRow() + dir[0];
             int col = myPosition.getColumn() + dir[1];
 
-            while (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
+            while (isOnBoard(row, col)) {
                 currentPosition = new ChessPosition(row, col);
                 currentPiece = board.getPiece(currentPosition);
 
@@ -105,6 +112,12 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * Calculates all valid positions a king or knight could move.
+     * 
+     * @param board, @param myPosition, @param directions
+     * @return Collection of valid moves for king or knight
+     */
     private Collection<ChessMove> kingAndKnight(ChessBoard board, ChessPosition myPosition, int[][] directions) {
         int startingRow = myPosition.getRow();
         int startingCol = myPosition.getColumn();
@@ -116,7 +129,7 @@ public class ChessPiece {
             ChessPosition currentPosition = new ChessPosition(currentRow, currentCol);
             ChessPiece target;
 
-            if (currentRow >= 1 && currentRow <= 8 && currentCol >= 1 && currentCol <= 8) {
+            if (isOnBoard(currentRow, currentCol)) {
                 target = board.getPiece(currentPosition);
                 if (target == null || target.getTeamColor() != this.getTeamColor()) {
                     moves.add(new ChessMove(myPosition, new ChessPosition(currentRow, currentCol), null));
@@ -127,6 +140,12 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * Calculates all valid positions a pawn could move, including possible promotions.
+     * 
+     * @param board, @param myPosition
+     * @return Collection of valid moves for a pawn
+     */
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
         int startingRow = myPosition.getRow();
         int startingCol = myPosition.getColumn();
@@ -161,10 +180,19 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * @param board, @param myPosition
+     * @return True if row and col are on the board
+     */
     private boolean isOnBoard(int row, int col) {
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
+    /**
+     * Adds a pawn move to list of moves, taking into account possible promotions.
+     * 
+     * @param moves, @param start, @param end
+     */
     private void addPawnMove(List<ChessMove> moves, ChessPosition start, ChessPosition end) {
         if (end.getRow() == 8 || end.getRow() == 1) {
             for (PieceType promo : new PieceType[]{PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT}) {
@@ -175,6 +203,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * @param o
+     * @return True if this and o are the same reference or if they are equivalent chess pieces, False otherwise
+     */
     @Override 
     public boolean equals(Object o) {
         if (this == o) {
@@ -190,11 +222,17 @@ public class ChessPiece {
         return this.pieceColor == other.pieceColor && this.type == other.type;
     }
 
+    /**
+     * @return int hash code calculated by hashing pieceColor and type
+     */
     @Override
     public int hashCode() {
         return Objects.hash(pieceColor, type);
     }
 
+    /**
+     * @return String representation of pieceColor and type
+     */
     @Override
     public String toString() {
         return "Team: " + pieceColor + ", Type: " + type;

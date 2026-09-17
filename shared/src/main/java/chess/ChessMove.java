@@ -45,6 +45,10 @@ public class ChessMove {
         return promotionPiece;
     }
 
+    /**
+     * @param o the object that is being compared with the current object
+     * @return True if this and o are the same reference or the moves are equivalent, False if not
+     */
     @Override 
     public boolean equals(Object o) {
         if (this == o) {
@@ -62,11 +66,17 @@ public class ChessMove {
             Objects.equals(this.promotionPiece, other.promotionPiece);
     }
 
+    /**
+     * @return int hash code calculating by hashing startPosition, endPosition, and promotionPiece
+     */
     @Override
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
+    /**
+     * @return String representation of chess move
+     */
     @Override
     public String toString() {
         return "Start Position: " + startPosition + ", End Position: " + endPosition + ", Promotion Piece: " + promotionPiece;

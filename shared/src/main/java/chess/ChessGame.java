@@ -143,20 +143,35 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * @param o the object that is being compared with the current object
+     * @return True if this and o are the same reference or their boards have equal contents and both chess games have the same team currently on their turn, False otherwise
+     */
     @Override
     public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         ChessGame chessGame = (ChessGame) o;
         return board.equals(chessGame.board) && teamTurn == chessGame.teamTurn;
     }
 
+    /**
+     * @return int hash code calculating by hashing the board and teamTurn
+     */
     @Override
     public int hashCode() {
         return Objects.hash(board, teamTurn);
     }
 
+    /**
+     * @return String representation of board and teamTurn
+     */
     @Override
     public String toString() {
         return "ChessGame{" +

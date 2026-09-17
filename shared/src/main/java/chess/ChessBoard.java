@@ -62,6 +62,10 @@ public class ChessBoard {
         }
     }
 
+    /**
+     * @param o the object that is being compared with the current object
+     * @return True if this and o are the same reference or their boards have equal contents, False if not
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -77,11 +81,17 @@ public class ChessBoard {
         return Arrays.deepEquals(board, other.board);
     }
 
+    /**
+     * @return int hash code calculated by hashing the contents of the board
+     */
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(board);
     }
 
+    /**
+     * @return A string representation of the contents of the board
+     */
     @Override
     public String toString() {
         return "ChessBoard{" +

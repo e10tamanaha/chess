@@ -33,6 +33,10 @@ public class ChessPosition {
         return col;
     }
 
+    /**
+     * @param o
+     * @return True if this and o are the same reference or if they are equivalent chess positions, False otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -48,11 +52,17 @@ public class ChessPosition {
         return this.row == other.row && this.col == other.col;
     }
 
+    /**
+     * @return int hash code calculated by hashing row and col
+     */
     @Override
     public int hashCode() {
         return Objects.hash(row, col);
     }
 
+    /**
+     * @return String representation of row and col
+     */
     @Override
     public String toString() {
         return "Row: " + row + ", Col: " + col;
