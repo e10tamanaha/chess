@@ -27,11 +27,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (getPiece(position) == null) {
-            board[position.getRow() - 1][position.getColumn() - 1] = piece;
-        }
-
-        return;
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -84,5 +80,12 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(board);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "board=" + Arrays.deepToString(board) +
+                '}';
     }
 }
