@@ -190,6 +190,7 @@ public class ChessGame {
         ChessPosition kingPos = kingPosition(teamColor);
         boolean check = isInCheck(teamColor);
         Collection<ChessMove> valid = validMoves(kingPos);
+        
     }
 
     /**
