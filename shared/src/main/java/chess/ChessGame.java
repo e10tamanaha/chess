@@ -187,10 +187,21 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition kingPos = kingPosition(teamColor);
-        boolean check = isInCheck(teamColor);
-        Collection<ChessMove> valid = validMoves(kingPos);
-        
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+
+        Colelction<ChessMove> valid;
+
+        for (ChessPosition pos : teamPositions(teamColor)) {
+            valid = validMoves(pos);
+
+            if (!valid.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
