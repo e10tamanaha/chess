@@ -191,7 +191,7 @@ public class ChessGame {
             return false;
         }
 
-        Colelction<ChessMove> valid;
+        Collection<ChessMove> valid;
 
         for (ChessPosition pos : teamPositions(teamColor)) {
             valid = validMoves(pos);
@@ -212,7 +212,21 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+
+        Collection<ChessMove> valid;
+
+        for (ChessPosition pos : teamPositions(teamColor)) {
+            valid = validMoves(pos);
+
+            if (!valid.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
