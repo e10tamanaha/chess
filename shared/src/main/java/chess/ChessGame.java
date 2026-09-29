@@ -2,7 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.List;
+import java.util.ArrayList;
 
 import static chess.ChessPiece.PieceType.*;
 
@@ -108,11 +108,11 @@ public class ChessGame {
     private ChessPosition kingPosition(TeamColor teamColor) {
         ChessPosition position;
         ChessPiece piece;
-        
+
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
+                position = new ChessPosition(i, j);
+                piece = board.getPiece(position);
 
                 if (piece != null && piece.getPieceType() == KING && piece.getTeamColor() == teamColor) {
                     return position;
@@ -123,18 +123,18 @@ public class ChessGame {
         return null;
     }
 
-    private List<ChessPosition> teamPosition(TeamColor teamColor) {
-        List<ChessPosition> positions = new ArrayList<ChessPosition>(List.of());
+    private List<ChessPosition> teamPositions(TeamColor teamColor) {
+        List<ChessPosition> positions = new ArrayList<ChessPosition>();
         ChessPosition position;
         ChessPiece piece;
 
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
+                position = new ChessPosition(i, j);
+                piece = board.getPiece(position);
 
                 if (piece != null && piece.getTeamColor() == teamColor) {
-                    positions.add(piece);
+                    positions.add(position);
                 }
             }
         }
