@@ -143,6 +143,12 @@ public class ChessGame {
         return false;
     }
 
+    /**
+     * Returns the position of the king of a given team color
+     *
+     * @param teamColor which team to check for
+     * @return chess position of the king of the specified team color, or null if there is no king
+     */
     private ChessPosition kingPosition(TeamColor teamColor) {
         ChessPosition position;
         ChessPiece piece;
@@ -161,6 +167,12 @@ public class ChessGame {
         return null;
     }
 
+    /**
+     * Returns the positions of all pieces of a given team color
+     *
+     * @param teamColor which team to check for
+     * @return list of chess positions of the pieces of the specified team color
+     */
     private List<ChessPosition> teamPositions(TeamColor teamColor) {
         List<ChessPosition> positions = new ArrayList<ChessPosition>();
         ChessPosition position;
