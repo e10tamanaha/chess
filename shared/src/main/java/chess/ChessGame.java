@@ -63,12 +63,10 @@ public class ChessGame {
 
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> valid = new ArrayList<ChessMove>();
-        ChessPosition end;
-        ChessPiece captured;
 
         for (ChessMove move : moves) {
-            end = move.getEndPosition();
-            captured = board.getPiece(end);
+            ChessPosition end = move.getEndPosition();
+            ChessPiece captured = board.getPiece(end);
 
             board.addPiece(startPosition, null);
             board.addPiece(end, piece);
@@ -126,12 +124,10 @@ public class ChessGame {
         TeamColor enemy = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         ChessPosition kingPos = kingPosition(teamColor);
         List<ChessPosition> teamPos = teamPositions(enemy);
-        Collection<ChessMove> moves;
-        ChessPiece piece;
 
         for (ChessPosition pos : teamPos) {
-            piece = board.getPiece(pos);
-            moves = piece.pieceMoves(board, pos);
+            ChessPiece piece = board.getPiece(pos);
+            Collection<ChessMove> moves = piece.pieceMoves(board, pos);
 
             for (ChessMove move : moves) {
                 if (move.getEndPosition().equals(kingPos)) {
@@ -150,13 +146,10 @@ public class ChessGame {
      * @return chess position of the king of the specified team color, or null if there is no king
      */
     private ChessPosition kingPosition(TeamColor teamColor) {
-        ChessPosition position;
-        ChessPiece piece;
-
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
-                position = new ChessPosition(i, j);
-                piece = board.getPiece(position);
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
 
                 if (piece != null && piece.getPieceType() == KING && piece.getTeamColor() == teamColor) {
                     return position;
@@ -175,13 +168,11 @@ public class ChessGame {
      */
     private List<ChessPosition> teamPositions(TeamColor teamColor) {
         List<ChessPosition> positions = new ArrayList<ChessPosition>();
-        ChessPosition position;
-        ChessPiece piece;
 
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
-                position = new ChessPosition(i, j);
-                piece = board.getPiece(position);
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
 
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     positions.add(position);
@@ -203,10 +194,8 @@ public class ChessGame {
             return false;
         }
 
-        Collection<ChessMove> valid;
-
         for (ChessPosition pos : teamPositions(teamColor)) {
-            valid = validMoves(pos);
+            Collection<ChessMove> valid = validMoves(pos);
 
             if (!valid.isEmpty()) {
                 return false;
@@ -228,10 +217,8 @@ public class ChessGame {
             return false;
         }
 
-        Collection<ChessMove> valid;
-
         for (ChessPosition pos : teamPositions(teamColor)) {
-            valid = validMoves(pos);
+            Collection<ChessMove> valid = validMoves(pos);
 
             if (!valid.isEmpty()) {
                 return false;

@@ -84,8 +84,6 @@ public class ChessPiece {
      * @return Collection of valid moves in straight and/or diagonal line
      */
     private Collection<ChessMove> straightAndDiagonal(ChessBoard board, ChessPosition myPosition, int[][] directions) {
-        ChessPosition currentPosition;
-        ChessPiece currentPiece;
         List<ChessMove> moves = new ArrayList<>();
 
         for (int[] dir : directions) {
@@ -93,8 +91,8 @@ public class ChessPiece {
             int col = myPosition.getColumn() + dir[1];
 
             while (isOnBoard(row, col)) {
-                currentPosition = new ChessPosition(row, col);
-                currentPiece = board.getPiece(currentPosition);
+                ChessPosition currentPosition = new ChessPosition(row, col);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
 
                 if (currentPiece != null) {
                     if (currentPiece.pieceColor != this.pieceColor) {
@@ -127,10 +125,9 @@ public class ChessPiece {
             int currentRow = startingRow + dir[0];
             int currentCol = startingCol + dir[1];
             ChessPosition currentPosition = new ChessPosition(currentRow, currentCol);
-            ChessPiece target;
 
             if (isOnBoard(currentRow, currentCol)) {
-                target = board.getPiece(currentPosition);
+                ChessPiece target = board.getPiece(currentPosition);
                 if (target == null || target.getTeamColor() != this.getTeamColor()) {
                     moves.add(new ChessMove(myPosition, new ChessPosition(currentRow, currentCol), null));
                 }
