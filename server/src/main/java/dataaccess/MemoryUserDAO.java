@@ -19,7 +19,7 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public void createUser(UserData user) {
-        String username = user.username;
+        String username = user.username();
         users.put(username, user);
     }
 }

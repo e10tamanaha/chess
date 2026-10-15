@@ -18,12 +18,16 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
-    public RegisterResult register(UserData request) throws AlreadyTakenException, DataAccessException {
+    public RegisterResult register(UserData request) throws AlreadyTakenException, DataAccessException, BadRequestException {
+        if (request == null || request.username() == null || request.password() == null || request.email() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+        
         String username = request.username();
         UserData user = userDAO.getUser(username);
         
         if (user != null) {
-            throw new AlreadyTakenException("Username already taken");
+            throw new AlreadyTakenException("Error: already taken");
         }
 
         String authToken = createAuthToken();
