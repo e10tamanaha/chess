@@ -1,18 +1,37 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import model.UserData;
+import model.AuthData;
+import java.util.UUID;
 
 public class UserService {
     private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
-    public UserService(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
+    public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
-    public UserData getUser(String username) {
+    private String createAuthToken() {
+        return UUID.randomUUID().toString();
+    }
+
+    public RegisterResult register(UserData request) throws AlreadyTakenException, DataAccessException {
+        String username = request.username();
         UserData user = userDAO.getUser(username);
+        
+        if (user != null) {
+            throw new AlreadyTakenException("Username already taken");
+        }
+
+        String authToken = createAuthToken();
+        AuthData auth = new AuthData(authToken, username);
+        userDAO.createUser(request);
+        authDAO.createAuth(auth);
+
+        RegisterResult registerResult = new RegisterResult(username, authToken);
+        return registerResult;
     }
 }
