@@ -18,7 +18,7 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
-    public RegisterResult register(UserData request) throws AlreadyTakenException, DataAccessException, BadRequestException {
+    public AuthResult register(UserData request) throws AlreadyTakenException, DataAccessException, BadRequestException {
         if (request == null || request.username() == null || request.password() == null || request.email() == null) {
             throw new BadRequestException("Error: bad request");
         }
@@ -35,7 +35,11 @@ public class UserService {
         userDAO.createUser(request);
         authDAO.createAuth(auth);
 
-        RegisterResult registerResult = new RegisterResult(username, authToken);
-        return registerResult;
+        AuthResult authResult = new AuthResult(username, authToken);
+        return authResult;
+    }
+
+    public AuthResult login(LoginRequest) throws UnauthorizedException, DataAccessException, BadRequestException {
+
     }
 }

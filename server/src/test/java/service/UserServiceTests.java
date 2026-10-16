@@ -21,7 +21,7 @@ public class UserServiceTests {
     @Test
     void registerSucceeds() throws Exception {
         UserData user = new UserData("Ethan", "password1234", "ethan@mail.com");
-        RegisterResult result = userService.register(user);
+        AuthResult result = userService.register(user);
         assertEquals("Ethan", result.username());
         assertNotNull(result.authToken());
         assertEquals(user, userDAO.getUser("Ethan"));
