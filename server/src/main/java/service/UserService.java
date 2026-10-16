@@ -18,6 +18,14 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
+    private String addAuthData(String username) throws DataAccessException {
+        String authToken = createAuthToken();
+        AuthData auth = new AuthData(authToken, username);
+        authDAO.createAuth(auth);
+
+        return authToken;
+    }
+
     public AuthResult register(UserData request) throws AlreadyTakenException, DataAccessException, BadRequestException {
         if (request == null || request.username() == null || request.password() == null || request.email() == null) {
             throw new BadRequestException("Error: bad request");
@@ -30,16 +38,28 @@ public class UserService {
             throw new AlreadyTakenException("Error: already taken");
         }
 
-        String authToken = createAuthToken();
-        AuthData auth = new AuthData(authToken, username);
         userDAO.createUser(request);
-        authDAO.createAuth(auth);
+        String authToken = addAuthData(username);
 
-        AuthResult authResult = new AuthResult(username, authToken);
-        return authResult;
+        AuthResult registerResult = new AuthResult(username, authToken);
+        return registerResult;
     }
 
-    public AuthResult login(LoginRequest) throws UnauthorizedException, DataAccessException, BadRequestException {
+    public AuthResult login(LoginRequest request) throws UnauthorizedException, DataAccessException, BadRequestException {
+        if (request == null || request.username() == null || request.password() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
 
+        String username = request.username();
+        String password = request.password();
+        UserData user = userDAO.getUser(username);
+
+        if (user == null || !password.equals(user.password())) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        String authToken = addAuthData(username);
+        AuthResult loginResult = new AuthResult(username, authToken);
+        return loginResult;
     }
 }
