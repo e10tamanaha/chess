@@ -8,6 +8,7 @@ import dataaccess.*;
 import service.ClearService;
 import service.AlreadyTakenException;
 import service.BadRequestException;
+import service.UnauthorizedException;
 import service.UserService;
 
 public class Server {
@@ -28,6 +29,7 @@ public class Server {
 
         UserHandler userHandler = new UserHandler(userService);
         javalin.post("/user", userHandler::register);
+        javalin.post("/session", userHandler::login);
 
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500);
@@ -43,6 +45,12 @@ public class Server {
 
         javalin.exception(BadRequestException.class, (e, ctx) -> {
             ctx.status(400);
+            ctx.contentType("application/json");
+            ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
+        });
+
+        javalin.exception(UnauthorizedException.class, (e, ctx) -> {
+            ctx.status(401);
             ctx.contentType("application/json");
             ctx.result(new Gson().toJson(Map.of("message", e.getMessage())));
         });
