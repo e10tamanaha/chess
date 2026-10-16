@@ -39,4 +39,34 @@ public class UserServiceTests {
         assertThrows(BadRequestException.class, () -> userService.register(user));
         assertNull(userDAO.getUser(user.username()));
     }
+
+    @Test
+    void loginSucceeds() throws Exception {
+        AuthResult registerResult = userService.register(new UserData("Ethan", "password1234", "ethan@mail.com"));
+        LoginRequest request = new LoginRequest("Ethan", new String("password1234"));
+        AuthResult loginResult = userService.login(request);
+        assertEquals("Ethan", loginResult.username());
+        assertNotNull(loginResult.authToken());
+        assertNotEquals(registerResult.authToken(), loginResult.authToken());
+    }
+
+    @Test
+    void loginWrongPassword() throws Exception {
+        userService.register(new UserData("Ethan", "password1234", "ethan@mail.com"));
+        LoginRequest request = new LoginRequest("Ethan", "wrongpassword");
+        assertThrows(UnauthorizedException.class, () -> userService.login(request));
+    }
+
+    @Test
+    void loginUnknownUser() {
+        LoginRequest request = new LoginRequest("Nobody", "password1234");
+        assertThrows(UnauthorizedException.class, () -> userService.login(request));
+    }
+
+    @Test
+    void loginBadRequest() throws Exception {
+        userService.register(new UserData("Ethan", "password1234", "ethan@mail.com"));
+        LoginRequest request = new LoginRequest("Ethan", null);
+        assertThrows(BadRequestException.class, () -> userService.login(request));
+    }
 }
