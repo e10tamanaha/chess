@@ -30,6 +30,7 @@ public class Server {
         UserHandler userHandler = new UserHandler(userService);
         javalin.post("/user", userHandler::register);
         javalin.post("/session", userHandler::login);
+        javalin.delete("/session", userHandler::logout);
 
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500);

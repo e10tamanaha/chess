@@ -69,4 +69,18 @@ public class UserServiceTests {
         LoginRequest request = new LoginRequest("Ethan", null);
         assertThrows(BadRequestException.class, () -> userService.login(request));
     }
+
+    @Test
+    void logoutSucceeds() throws Exception {
+        AuthResult registerResult = userService.register(new UserData("Ethan", "password1234", "ethan@mail.com"));
+        String authToken = registerResult.authToken();
+        userService.logout(authToken);
+        assertNull(authDAO.getAuth(authToken));
+    }
+
+    @Test
+    void logoutNullAuthData() throws Exception {
+        userService.register(new UserData("Ethan", "password1234", "ethan@mail.com"));
+        assertThrows(UnauthorizedException.class, () -> userService.logout("InvalidToken"));
+    }
 }
