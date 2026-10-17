@@ -10,6 +10,7 @@ import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import dataaccess.DataAccessException;
+import java.util.Map;
 
 public class UserHandler {
     private final UserService userService;
@@ -19,7 +20,7 @@ public class UserHandler {
         this.userService = userService;
     }
 
-    private void successContext(Context ctx, AuthResult result) {
+    private void successContext(Context ctx, Object result) {
         ctx.status(200);
         ctx.contentType("application/json");
         ctx.result(gson.toJson(result));
@@ -35,5 +36,11 @@ public class UserHandler {
         LoginRequest request = gson.fromJson(ctx.body(), LoginRequest.class);
         AuthResult result = userService.login(request);
         successContext(ctx, result);
+    }
+
+    public void logout(Context ctx) throws UnauthorizedException, DataAccessException {
+        String authToken = ctx.header("authorization");
+        userService.logout(authToken);
+        successContext(ctx, Map.of());
     }
 }
