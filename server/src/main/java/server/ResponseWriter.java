@@ -8,7 +8,7 @@ public class ResponseWriter {
     
     private ResponseWriter() {}
 
-    public static void successContext(Context ctx, Object result) {
+    public static void success(Context ctx, Object result) {
         ctx.status(200);
         ctx.contentType("application/json");
         ctx.result(GSON.toJson(result));

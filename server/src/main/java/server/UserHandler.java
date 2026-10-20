@@ -20,27 +20,21 @@ public class UserHandler {
         this.userService = userService;
     }
 
-    private void successContext(Context ctx, Object result) {
-        ctx.status(200);
-        ctx.contentType("application/json");
-        ctx.result(gson.toJson(result));
-    }
-
     public void register(Context ctx) throws AlreadyTakenException, DataAccessException, BadRequestException {
         UserData request = gson.fromJson(ctx.body(), UserData.class);
         AuthResult result = userService.register(request);
-        successContext(ctx, result);
+        ResponseWriter.success(ctx, result);
     }
 
     public void login(Context ctx) throws UnauthorizedException, DataAccessException, BadRequestException {
         LoginRequest request = gson.fromJson(ctx.body(), LoginRequest.class);
         AuthResult result = userService.login(request);
-        successContext(ctx, result);
+        ResponseWriter.success(ctx, result);
     }
 
     public void logout(Context ctx) throws UnauthorizedException, DataAccessException {
         String authToken = ctx.header("authorization");
         userService.logout(authToken);
-        successContext(ctx, Map.of());
+        ResponseWriter.success(ctx, Map.of());
     }
 }
