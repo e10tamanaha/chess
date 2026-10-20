@@ -22,4 +22,9 @@ public class MemoryGameDAO implements GameDAO {
         gameData.put(gameID, new GameData(gameID, null, null, gameName, new ChessGame()));
         return gameID;
     }
+
+    @Override
+    public GameData getGame(int gameID) {
+        return gameData.get(gameID);
+    }
 }

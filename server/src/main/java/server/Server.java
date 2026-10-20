@@ -6,11 +6,12 @@ import java.util.Map;
 
 import dataaccess.*;
 import service.ClearService;
+import service.UserService;
+import service.GameService;
+import service.Authenticator;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
-import service.UserService;
-import service.Authenticator;
 
 public class Server {
 
@@ -26,6 +27,7 @@ public class Server {
 
         ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
         UserService userService = new UserService(userDAO, authDAO, authenticator);
+        GameService gameService = new GameService(gameDAO, authenticator);
 
         javalin.delete("/db", new ClearHandler(clearService));
 
@@ -33,6 +35,9 @@ public class Server {
         javalin.post("/user", userHandler::register);
         javalin.post("/session", userHandler::login);
         javalin.delete("/session", userHandler::logout);
+
+        GameHandler gameHandler = new GameHandler(gameService);
+        javalin.post("/game", gameHandler::createGame);
 
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500);
