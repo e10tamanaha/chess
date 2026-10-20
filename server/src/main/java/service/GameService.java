@@ -1,17 +1,24 @@
 package service;
 
 import dataaccess.*;
-import model.GameData;
-import java.util.UUID;
 
 public class GameService {
     private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
     private final Authenticator authenticator;
 
-    public GameService(GameDAO gameDAO, AuthDAO authDAO, Authenticator authenticator) {
+    public GameService(GameDAO gameDAO, Authenticator authenticator) {
         this.gameDAO = gameDAO;
-        this.authDAO = authDAO;
         this.authenticator = authenticator;
+    }
+
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws UnauthorizedException, BadRequestException, DataAccessException {
+        authenticator.authenticate(authToken);
+
+        if (request == null || request.gameName() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        int gameID = gameDAO.createGame(request.gameName());
+        return new CreateGameResult(gameID);
     }
 }
