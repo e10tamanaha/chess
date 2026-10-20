@@ -10,6 +10,7 @@ import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import service.UserService;
+import service.Authenticator;
 
 public class Server {
 
@@ -21,9 +22,10 @@ public class Server {
         UserDAO userDAO = new MemoryUserDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
+        Authenticator authenticator = new Authenticator(authDAO);
 
         ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
-        UserService userService = new UserService(userDAO, authDAO);
+        UserService userService = new UserService(userDAO, authDAO, authenticator);
 
         javalin.delete("/db", new ClearHandler(clearService));
 

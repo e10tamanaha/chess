@@ -9,13 +9,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserServiceTests {
     private UserDAO userDAO;
     private AuthDAO authDAO;
+    private Authenticator authenticator;
     private UserService userService;
 
     @BeforeEach
     void setUp() {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
-        userService = new UserService(userDAO, authDAO);
+        authenticator = new Authenticator(authDAO);
+        userService = new UserService(userDAO, authDAO, authenticator);
     }
 
     @Test

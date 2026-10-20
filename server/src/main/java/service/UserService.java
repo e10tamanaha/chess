@@ -8,10 +8,12 @@ import java.util.UUID;
 public class UserService {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
+    private final Authenticator authenticator;
 
-    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+    public UserService(UserDAO userDAO, AuthDAO authDAO, Authenticator authenticator) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
+        this.authenticator = authenticator;
     }
 
     private String createAuthToken() {
@@ -64,12 +66,7 @@ public class UserService {
     }
 
     public void logout(String authToken) throws UnauthorizedException, DataAccessException {
-        AuthData authData = authDAO.getAuth(authToken);
-
-        if (authData == null) {
-            throw new UnauthorizedException("Error: unauthorized");
-        }
-
+        authenticator.authenticate(authToken);
         authDAO.deleteAuth(authToken);
     }
 }
