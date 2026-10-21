@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.*;
+import java.util.Collection;
+import model.GameData;
 
 public class GameService {
     private final GameDAO gameDAO;
@@ -20,5 +22,11 @@ public class GameService {
 
         int gameID = gameDAO.createGame(request.gameName());
         return new CreateGameResult(gameID);
+    }
+
+    public ListGamesResult listGames(String authToken) throws UnauthorizedException, DataAccessException {
+        authenticator.authenticate(authToken);
+        Collection<GameData> games = gameDAO.listGames();
+        return new ListGamesResult(games);
     }
 }
