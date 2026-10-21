@@ -38,6 +38,7 @@ public class Server {
 
         GameHandler gameHandler = new GameHandler(gameService);
         javalin.post("/game", gameHandler::createGame);
+        javalin.get("/game", gameHandler::listGames);
 
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500);
