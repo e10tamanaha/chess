@@ -3,6 +3,8 @@ package dataaccess;
 import model.GameData;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
+import java.util.ArrayList;
 import chess.ChessGame;
 
 public class MemoryGameDAO implements GameDAO {
@@ -26,5 +28,10 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) {
         return gameData.get(gameID);
+    }
+
+    @Override
+    public Collection<GameData> listGames() {
+        return new ArrayList<>(gameData.values());
     }
 }
