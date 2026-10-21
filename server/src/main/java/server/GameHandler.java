@@ -1,14 +1,17 @@
 package server;
 
+import java.util.Map;
 import io.javalin.http.Context;
 import service.GameService;
 import com.google.gson.Gson;
 import service.CreateGameRequest;
 import service.CreateGameResult;
 import service.ListGamesResult;
+import service.JoinGameRequest;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import dataaccess.DataAccessException;
+import service.AlreadyTakenException;
 
 public class GameHandler {
     private final GameService gameService;
@@ -29,5 +32,12 @@ public class GameHandler {
         String authToken = ctx.header("authorization");
         ListGamesResult result = gameService.listGames(authToken);
         ResponseWriter.success(ctx, result);
+    }
+
+    public void joinGame(Context ctx) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+        String authToken = ctx.header("authorization");
+        JoinGameRequest request = gson.fromJson(ctx.body(), JoinGameRequest.class);
+        gameService.joinGame(authToken, request);
+        ResponseWriter.success(ctx, Map.of());
     }
 }
