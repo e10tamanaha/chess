@@ -29,6 +29,10 @@ public class GameServiceTests {
         return gameService.createGame(tokenName, new CreateGameRequest(gameName));
     }
 
+    private void joinGame(String tokenName, String playerColor, Integer gameID) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+        gameService.joinGame(tokenName, new JoinGameRequest(playerColor, gameID));
+    }
+
     @Test
     void createGameSucceeds() throws Exception {
         String gameName = "My Game";
@@ -76,5 +80,60 @@ public class GameServiceTests {
     @Test
     void listGamesBadToken() throws Exception {
         assertThrows(UnauthorizedException.class, () -> gameService.listGames("invalidToken"));
+    }
+
+    @Test
+    void joinGameSucceeds() throws Exception {
+        int gameID = createGame(TOKEN, "My Game").gameID();
+        joinGame(TOKEN, "WHITE", gameID);
+
+        GameData game = gameDAO.getGame(gameID);
+        assertEquals("Ethan", game.whiteUsername());
+        assertNull(game.blackUsername());
+        assertEquals("My Game", game.gameName());
+    }
+
+    @Test
+    void joinGameAsBlackSucceeds() throws Exception {
+        authDAO.createAuth(new AuthData("otherToken", "Sam"));
+        int gameID = createGame(TOKEN, "My Game").gameID();
+        joinGame("otherToken", "WHITE", gameID);
+        joinGame(TOKEN, "BLACK", gameID);
+
+        GameData game = gameDAO.getGame(gameID);
+        assertEquals("Sam", game.whiteUsername());
+        assertEquals("Ethan", game.blackUsername());
+    }
+
+    @Test
+    void joinGameBadToken() throws Exception {
+        int gameID = createGame(TOKEN, "My Game").gameID();
+        assertThrows(UnauthorizedException.class, () -> joinGame("invalidToken", "WHITE", gameID));
+    }
+
+    @Test
+    void joinGameBadColor() throws Exception {
+        int gameID = createGame(TOKEN, "My Game").gameID();
+        assertThrows(BadRequestException.class, () -> joinGame(TOKEN, "GREEN", gameID));
+    }
+
+    @Test
+    void joinGameMissingID() {
+        assertThrows(BadRequestException.class, () -> joinGame(TOKEN, "WHITE", null));
+    }
+
+    @Test
+    void joinGameNonexistentGame() {
+        assertThrows(BadRequestException.class, () -> joinGame(TOKEN, "WHITE", 999));
+    }
+
+    @Test
+    void joinGameSeatTaken() throws Exception {
+        authDAO.createAuth(new AuthData("otherToken", "Sam"));
+        int gameID = createGame(TOKEN, "My Game").gameID();
+        joinGame("otherToken", "WHITE", gameID);
+
+        assertThrows(AlreadyTakenException.class, () -> joinGame(TOKEN, "WHITE", gameID));
+        assertEquals("Sam", gameDAO.getGame(gameID).whiteUsername());
     }
 }
