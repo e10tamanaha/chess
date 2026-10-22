@@ -14,7 +14,8 @@ public class GameService {
         this.authenticator = authenticator;
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws UnauthorizedException, BadRequestException, DataAccessException {
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) 
+        throws UnauthorizedException, BadRequestException, DataAccessException {
         authenticator.authenticate(authToken);
 
         if (request == null || request.gameName() == null) {
@@ -31,7 +32,8 @@ public class GameService {
         return new ListGamesResult(games);
     }
 
-    public void joinGame(String authToken, JoinGameRequest request) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+    public void joinGame(String authToken, JoinGameRequest request) 
+        throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         AuthData authData = authenticator.authenticate(authToken);
 
         if (request == null || request.gameID() == null || !isValidColor(request.playerColor())) {

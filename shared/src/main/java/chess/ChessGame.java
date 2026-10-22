@@ -248,7 +248,9 @@ public class ChessGame {
 
     /**
      * @param o the object that is being compared with the current object
-     * @return True if this and o are the same reference or their boards have equal contents and both chess games have the same team currently on their turn, False otherwise
+     * @return True if this and o are the same reference or their boards
+     * have equal contents and both chess games have the same team currently
+     * on their turn, False otherwise
      */
     @Override
     public boolean equals(Object o) {

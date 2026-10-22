@@ -29,7 +29,8 @@ public class GameServiceTests {
         return gameService.createGame(tokenName, new CreateGameRequest(gameName));
     }
 
-    private void joinGame(String tokenName, String playerColor, Integer gameID) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+    private void joinGame(String tokenName, String playerColor, Integer gameID) 
+        throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         gameService.joinGame(tokenName, new JoinGameRequest(playerColor, gameID));
     }
 
