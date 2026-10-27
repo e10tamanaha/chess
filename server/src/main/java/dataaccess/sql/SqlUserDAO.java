@@ -24,7 +24,17 @@ public class SqlUserDAO implements UserDAO {
     }
 
     @Override
+    public UserData getUser(String username) throws DataAccessException {
+        var users = SqlHelper.executeQuery("SELECT username, password, email FROM user WHERE username = ?",
+        "Error: unable to get user",
+        rs -> new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email")),
+        username);
+        return users.isEmpty()? null : users.get(0);
+    }
+
+    @Override
     public void createUser(UserData user) throws DataAccessException {
-        SqlHelper.executeUpdate("INSERT INTO user (username, password, email) VALUES (?, ?, ?)", "Error: unable to create user", user.username(), user.password(), user.email());
+        SqlHelper.executeUpdate("INSERT INTO user (username, password, email) VALUES (?, ?, ?)",
+         "Error: unable to create user", user.username(), user.password(), user.email());
     }
 }
