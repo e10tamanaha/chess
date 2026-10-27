@@ -22,4 +22,9 @@ public class SqlUserDAO implements UserDAO {
     public void clear() throws DataAccessException {
         SqlHelper.executeUpdate("TRUNCATE TABLE user", "Error: unable to clear user table");
     }
+
+    @Override
+    public void createUser(UserData user) throws DataAccessException {
+        SqlHelper.executeUpdate("INSERT INTO user (username, password, email) VALUES (?, ?, ?)", "Error: unable to create user", user.username(), user.password(), user.email());
+    }
 }
