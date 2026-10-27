@@ -1,11 +1,8 @@
 package dataaccess.sql;
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
 import dataaccess.UserDAO;
 import model.UserData;
-
-import java.sql.SQLException;
 
 public class SqlUserDAO implements UserDAO {
     private static final String CREATE_STATEMENT = """
@@ -18,21 +15,11 @@ public class SqlUserDAO implements UserDAO {
         """;
 
     public SqlUserDAO() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        executeUpdate(CREATE_STATEMENT, "Error: unable to configure user table");
-    }
-
-    private static void executeUpdate(String sql, String errorMessage) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection();
-            var ps = conn.prepareStatement(sql)) {
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException(errorMessage, e);
-        }
+        SqlHelper.configureTable(CREATE_STATEMENT);
     }
 
     @Override
     public void clear() throws DataAccessException {
-        executeUpdate("TRUNCATE TABLE user", "Error: unable to clear user table");
+        SqlHelper.executeUpdate("TRUNCATE TABLE user", "Error: unable to clear user table");
     }
 }
