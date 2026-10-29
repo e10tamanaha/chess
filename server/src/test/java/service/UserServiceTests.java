@@ -37,7 +37,7 @@ public class UserServiceTests {
     }
 
     @Test
-    void badRequest() {
+    void badRequest() throws DataAccessException {
         UserData user = new UserData("Ethan", null, "ethan@mail.com");
         assertThrows(BadRequestException.class, () -> userService.register(user));
         assertNull(userDAO.getUser(user.username()));
