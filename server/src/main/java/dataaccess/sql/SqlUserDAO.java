@@ -35,6 +35,6 @@ public class SqlUserDAO implements UserDAO {
     @Override
     public void createUser(UserData user) throws DataAccessException {
         SqlHelper.executeUpdate("INSERT INTO user (username, password, email) VALUES (?, ?, ?)",
-         "Error: unable to create user", user.username(), user.password(), user.email());
+            "Error: unable to create user", user.username(), user.password(), user.email());
     }
 }
