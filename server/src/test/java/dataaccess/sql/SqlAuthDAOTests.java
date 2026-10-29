@@ -53,4 +53,24 @@ public class SqlAuthDAOTests {
         assertNull(authDAO.getAuth(token1));
         assertEquals(auth2, authDAO.getAuth(token2));
     }
+
+    @Test
+    void deleteAuthNegative() throws DataAccessException {
+        String token1 = "token1";
+        AuthData auth1 = new AuthData(token1, "username1");
+        authDAO.createAuth(auth1);
+        authDAO.deleteAuth("token2");
+        assertEquals(auth1, authDAO.getAuth(token1));
+    }
+
+    @Test
+    void clearPositive() throws DataAccessException {
+        String token1 = "token1";
+        String token2 = "token2";
+        authDAO.createAuth(new AuthData(token1, "username1"));
+        authDAO.createAuth(new AuthData(token2, "username2"));
+        authDAO.clear();
+        assertNull(authDAO.getAuth(token1));
+        assertNull(authDAO.getAuth(token2));
+    }
 }
