@@ -35,4 +35,23 @@ public class SqlUserDAOTests {
         userDAO.createUser(user1);
         assertThrows(DataAccessException.class, () -> userDAO.createUser(user2));
     }
+
+    @Test
+    void getUserNegative() throws DataAccessException {
+        assertNull(userDAO.getUser("neverexisted"));
+    }
+
+    @Test
+    void clearPositive() throws DataAccessException {
+        String username1 = "Ethan";
+        String username2 = "Elise";
+        String username3 = "Eli";
+        userDAO.createUser(new UserData(username1, "ohagi", "ethan@mail.com"));
+        userDAO.createUser(new UserData(username2, "strawberryshortcake", "elise@mail.com"));
+        userDAO.createUser(new UserData(username3, "softserveicecream", "eli@mail.com"));
+        userDAO.clear();
+        assertNull(userDAO.getUser(username1));
+        assertNull(userDAO.getUser(username2));
+        assertNull(userDAO.getUser(username3));
+    }
 }
