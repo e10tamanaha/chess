@@ -26,9 +26,9 @@ public class SqlUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         var users = SqlHelper.executeQuery("SELECT username, password, email FROM user WHERE username = ?",
-        "Error: unable to get user",
-        rs -> new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email")),
-        username);
+            "Error: unable to get user",
+            rs -> new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email")),
+            username);
         return users.isEmpty()? null : users.get(0);
     }
 
