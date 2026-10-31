@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import java.util.Map;
 
 import dataaccess.*;
-import dataaccess.memory.*;
+import dataaccess.sql.*;
 import service.ClearService;
 import service.UserService;
 import service.GameService;
@@ -21,9 +21,17 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        UserDAO userDAO = new MemoryUserDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+        UserDAO userDAO;
+        GameDAO gameDAO;
+        AuthDAO authDAO;
+        try {
+            userDAO = new SqlUserDAO();
+            gameDAO = new SqlGameDAO();
+            authDAO = new SqlAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error: unable to initialize database", e);
+        }
+
         Authenticator authenticator = new Authenticator(authDAO);
 
         ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
