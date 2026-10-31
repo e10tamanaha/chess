@@ -9,20 +9,32 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
 
 final class SqlHelper {
     private SqlHelper() {}
+
+    @FunctionalInterface
+    interface RowMapper<T> {
+        T map(ResultSet rs) throws SQLException;
+    }
+
+    record UpdateResult(int rowsChanged, int generatedId) {}
 
     static void configureTable(String createStatement) throws DataAccessException {
         DatabaseManager.createDatabase();
         executeUpdate(createStatement, "Error: unable to configure database");
     }
 
-    static void executeUpdate(String sql, String errorMessage, Object... params) throws DataAccessException {
+    static UpdateResult executeUpdate(String sql, String errorMessage, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();
-            var ps = conn.prepareStatement(sql)) {
+            var ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(ps, params);
-            ps.executeUpdate();
+            int rowsChanged = ps.executeUpdate();
+            try (var keys = ps.getGeneratedKeys()) {
+                int generatedID = keys.next() ? keys.getInt(1) : 0;
+                return new UpdateResult(rowsChanged, generatedID);
+            }
         } catch (SQLException e) {
             throw new DataAccessException(errorMessage, e);
         }
@@ -36,11 +48,6 @@ final class SqlHelper {
                 ps.setObject(i + 1, params[i]);
             }
         }
-    }
-
-    @FunctionalInterface
-    interface RowMapper<T> {
-        T map(ResultSet rs) throws SQLException;
     }
 
     static <T> List<T> executeQuery(String sql, String errorMessage, RowMapper<T> mapper,
