@@ -6,6 +6,7 @@ import model.GameData;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import java.util.Collection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -46,5 +47,35 @@ public class SqlGameDAO implements GameDAO {
         );
 
         return games.isEmpty() ? null : games.get(0);
+    }
+
+    @Override
+    public int createGame(String gameName) throws DataAccessException {
+        return SqlHelper.executeUpdate(
+            "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)",
+            "Error: unable to create game",
+            null, null, gameName, new Gson().toJson(new ChessGame())).generatedId();
+    }
+
+    @Override
+    public Collection<GameData> listGames() throws DataAccessException {
+        return SqlHelper.executeQuery(
+            "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game",
+            "Error: unable to list games",
+            SqlGameDAO::readGame
+        );
+    }
+
+    @Override
+    public void updateGame(GameData game) throws DataAccessException {
+        var result = SqlHelper.executeUpdate(
+            "UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?",
+            "Error: unable to update game",
+            game.whiteUsername(), game.blackUsername(), game.gameName(), new Gson().toJson(game.game()), game.gameID()
+        );
+
+        if (result.rowsChanged() == 0) {
+            throw new DataAccessException("Error: game does not exist");
+        }
     }
 }

@@ -32,8 +32,8 @@ final class SqlHelper {
             setParams(ps, params);
             int rowsChanged = ps.executeUpdate();
             try (var keys = ps.getGeneratedKeys()) {
-                int generatedID = keys.next() ? keys.getInt(1) : 0;
-                return new UpdateResult(rowsChanged, generatedID);
+                int generatedId = keys.next() ? keys.getInt(1) : 0;
+                return new UpdateResult(rowsChanged, generatedId);
             }
         } catch (SQLException e) {
             throw new DataAccessException(errorMessage, e);
