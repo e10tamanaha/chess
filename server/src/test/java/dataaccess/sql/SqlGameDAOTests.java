@@ -1,6 +1,7 @@
 package dataaccess.sql;
 
 import dataaccess.DataAccessException;
+import java.util.Collection;
 import chess.ChessGame;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,5 +44,32 @@ public class SqlGameDAOTests {
     void createGameNegative() throws DataAccessException {
         assertThrows(DataAccessException.class, () -> gameDAO.createGame(null));
         assertTrue(gameDAO.listGames().isEmpty());
+    }
+
+    @Test
+    void getGameNegative() throws DataAccessException {
+        assertNull(gameDAO.getGame(999));
+    }
+
+    @Test
+    void listGamesPositive() throws DataAccessException {
+        String gameName1 = "game1";
+        String gameName2 = "game2";
+        String gameName3 = "game3";
+        int gameId1 = gameDAO.createGame(gameName1);
+        int gameId2 = gameDAO.createGame(gameName2);
+        int gameId3 = gameDAO.createGame(gameName3);
+        Collection<GameData> games = gameDAO.listGames();
+        assertEquals(3, games.size());
+        assertTrue(games.contains(gameDAO.getGame(gameId1)));
+        assertTrue(games.contains(gameDAO.getGame(gameId2)));
+        assertTrue(games.contains(gameDAO.getGame(gameId3)));
+    }
+
+    @Test
+    void listGamesEmptyNegative() throws DataAccessException {
+        Collection<GameData> games = gameDAO.listGames();
+        assertNotNull(games);
+        assertTrue(games.isEmpty());
     }
 }
