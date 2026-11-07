@@ -17,6 +17,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 public class ServerFacade {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final Gson GSON = new Gson();
+    private record LoginRequest(String username, String password) {}
 
     private final String serverUrl;
 
@@ -60,5 +61,12 @@ public class ServerFacade {
 
     public void clear() throws ResponseException {
         makeRequest("DELETE", "/db", null, null, null, Map.of());
+    }
+
+    public AuthData login(String username, String password) throws ResponseException {
+        var body = new LoginRequest(username, password);
+        return makeRequest("POST", "/session", body, null, AuthData.class, Map.of(
+            400, "Please provide a username and password",
+            401, "Incorrect username or password"));
     }
 }
