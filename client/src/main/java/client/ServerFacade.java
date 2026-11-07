@@ -69,4 +69,9 @@ public class ServerFacade {
             400, "Please provide a username and password",
             401, "Incorrect username or password"));
     }
+
+    public void logout(String authToken) throws ResponseException {
+        makeRequest("DELETE", "/session", null, authToken, null, Map.of(
+            401, "You are not logged in"));
+    }
 }

@@ -62,4 +62,16 @@ public class ServerFacadeTests {
         facade.register("player1", "password", "p1@email.com");
         assertThrows(ResponseException.class, () -> facade.login("player1", "wrongpassword"));
     }
+
+    @Test
+    public void logoutPositive() throws ResponseException {
+        AuthData result = facade.register("player1", "password", "p1@email.com");
+        assertDoesNotThrow(() -> facade.logout(result.authToken()));
+        assertThrows(ResponseException.class, () -> facade.logout(result.authToken()));
+    }
+
+    @Test
+    public void logoutNegative() throws ResponseException {
+        assertThrows(ResponseException.class, () -> facade.logout("fake-token"));
+    }
 }
