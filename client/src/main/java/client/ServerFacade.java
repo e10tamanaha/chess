@@ -18,6 +18,8 @@ public class ServerFacade {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final Gson GSON = new Gson();
     private record LoginRequest(String username, String password) {}
+    private record CreateGameRequest(String gameName) {}
+    private record CreateGameResponse(int gameID) {}
 
     private final String serverUrl;
 
@@ -73,5 +75,13 @@ public class ServerFacade {
     public void logout(String authToken) throws ResponseException {
         makeRequest("DELETE", "/session", null, authToken, null, Map.of(
             401, "You are not logged in"));
+    }
+
+    public int createGame(String authToken, String gameName) throws ResponseException {
+        var body = new CreateGameRequest(gameName);
+        CreateGameResponse response = makeRequest("POST", "/game", body, authToken, CreateGameResponse.class, Map.of(
+                400, "Please provide a game name",
+                401, "You must be logged in to create a game"));
+        return response.gameID();
     }
 }

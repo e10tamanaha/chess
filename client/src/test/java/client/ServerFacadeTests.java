@@ -74,4 +74,18 @@ public class ServerFacadeTests {
     public void logoutNegative() throws ResponseException {
         assertThrows(ResponseException.class, () -> facade.logout("fake-token"));
     }
+
+    @Test
+    public void createGamePositive() throws ResponseException {
+        AuthData auth = facade.register("player1", "password", "p1@email.com");
+        int gameID1 = facade.createGame(auth.authToken(), "game1");
+        int gameID2 = facade.createGame(auth.authToken(), "game2");
+        assertTrue(gameID1 > 0);
+        assertNotEquals(gameID1, gameID2);
+    }
+
+    @Test
+    public void createGameNegative() throws ResponseException {
+        assertThrows(ResponseException.class, () -> facade.createGame("fake-token", "game1"));
+    }
 }
