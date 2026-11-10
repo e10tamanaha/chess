@@ -3,6 +3,8 @@ package client;
 import org.junit.jupiter.api.*;
 import server.Server;
 import model.AuthData;
+import model.GameData;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerFacadeTests {
@@ -87,5 +89,18 @@ public class ServerFacadeTests {
     @Test
     public void createGameNegative() throws ResponseException {
         assertThrows(ResponseException.class, () -> facade.createGame("fake-token", "game1"));
+    }
+
+    @Test
+    public void listGamesPositive() throws ResponseException {
+        AuthData auth = facade.register("player1", "password", "p1@email.com");
+        int gameID1 = facade.createGame(auth.authToken(), "game1");
+        int gameID2 = facade.createGame(auth.authToken(), "game2");
+        List<GameData> gamesList = facade.listGames(auth.authToken());
+        assertEquals(2, gamesList.size());
+        assertEquals(gameID1, gamesList.get(0).gameID());
+        assertEquals("game1", gamesList.get(0).gameName());
+        assertEquals(gameID2, gamesList.get(1).gameID());
+        assertEquals("game2", gamesList.get(1).gameName());
     }
 }
