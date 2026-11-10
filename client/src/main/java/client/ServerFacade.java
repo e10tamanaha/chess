@@ -5,8 +5,11 @@ import java.net.http.HttpClient;
 
 import model.AuthData;
 import model.UserData;
+import model.GameData;
+import chess.ChessGame;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -20,6 +23,8 @@ public class ServerFacade {
     private record LoginRequest(String username, String password) {}
     private record CreateGameRequest(String gameName) {}
     private record CreateGameResponse(int gameID) {}
+    private record JoinGameRequest(ChessGame.TeamColor playerColor, int gameID) {}
+    private record ListGamesResponse(List<GameData> games) {}
 
     private final String serverUrl;
 
@@ -80,8 +85,22 @@ public class ServerFacade {
     public int createGame(String authToken, String gameName) throws ResponseException {
         var body = new CreateGameRequest(gameName);
         CreateGameResponse response = makeRequest("POST", "/game", body, authToken, CreateGameResponse.class, Map.of(
-                400, "Please provide a game name",
-                401, "You must be logged in to create a game"));
+            400, "Please provide a game name",
+            401, "You must be logged in to create a game"));
         return response.gameID();
+    }
+
+    public List<GameData> listGames(String authToken) throws ResponseException {
+        ListGamesResponse response = makeRequest("GET", "/game", null, authToken, ListGamesResponse.class, Map.of(
+            401, "You must be logged in to list games"));
+        return response.games();
+    }
+
+    public void joinGame(String authToken, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {
+        var body = new JoinGameRequest(playerColor, gameID);
+        makeRequest("PUT", "/game", body, authToken, null, Map.of(
+            400, "That game doesn't exist",
+            401, "You must be logged in to join a game",
+            403, "That color is already taken in this game"));
     }
 }
