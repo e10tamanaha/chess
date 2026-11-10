@@ -2,8 +2,6 @@ package client;
 
 import model.AuthData;
 
-import java.util.Arrays;
-
 public class PreloginClient {
     private final ServerFacade facade;
     private AuthData auth = null;
@@ -17,13 +15,11 @@ public class PreloginClient {
     }
 
     public String eval(String input) throws ResponseException {
-        String[] tokens = input.trim().split("\\s+");
-        String command = tokens[0].toLowerCase();
-        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        Command cmd = Command.parse(input);
 
-        return switch (command) {
-            case "register" -> register(params);
-            case "login" -> login(params);
+        return switch (cmd.name()) {
+            case "register" -> register(cmd.params());
+            case "login" -> login(cmd.params());
             case "help" -> help();
             default -> "Unknown command. Type help to see available commands.";
         };
