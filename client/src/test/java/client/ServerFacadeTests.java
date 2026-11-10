@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import model.AuthData;
 import model.GameData;
+import chess.ChessGame;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -102,5 +103,36 @@ public class ServerFacadeTests {
         assertEquals("game1", gamesList.get(0).gameName());
         assertEquals(gameID2, gamesList.get(1).gameID());
         assertEquals("game2", gamesList.get(1).gameName());
+    }
+
+    @Test
+    public void listGamesNegative() throws ResponseException {
+        assertThrows(ResponseException.class, () -> facade.listGames("fake_token"));
+    }
+
+    @Test
+    public void joinGamesPositive() throws ResponseException {
+        AuthData auth = facade.register("player1", "password", "p1@email.com");
+        int gameID = facade.createGame(auth.authToken(), "game1");
+
+        assertDoesNotThrow(() -> facade.joinGame(auth.authToken(), gameID, ChessGame.TeamColor.WHITE));
+
+        GameData game = facade.listGames(auth.authToken()).get(0);
+        assertEquals("player1", game.whiteUsername());
+        assertNull(game.blackUsername());
+    }
+
+    @Test
+    public void joinGamesNegative() throws ResponseException {
+        AuthData auth1 = facade.register("player1", "password", "p1@email.com");
+        AuthData auth2 = facade.register("player2", "password", "p2@email.com");
+        int gameID = facade.createGame(auth1.authToken(), "game1");
+        facade.joinGame(auth1.authToken(), gameID, ChessGame.TeamColor.WHITE);
+
+        assertThrows(ResponseException.class,
+            () -> facade.joinGame(auth2.authToken(), gameID, ChessGame.TeamColor.WHITE));
+
+        GameData game = facade.listGames(auth1.authToken()).get(0);
+        assertEquals("player1", game.whiteUsername());
     }
 }
