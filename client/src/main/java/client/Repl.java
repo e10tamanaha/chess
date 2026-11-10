@@ -6,11 +6,13 @@ public class Repl {
     private enum State {SIGNED_OUT, SIGNED_IN}
 
     private final ServerFacade facade;
+    private final PreloginClient prelogin;
     private final Scanner scanner = new Scanner(System.in);
     private State state = State.SIGNED_OUT;
 
     public Repl(ServerFacade facade) {
         this.facade = facade;
+        this.prelogin = new PreloginClient(facade);
     }
 
     public void run() {
@@ -22,12 +24,15 @@ public class Repl {
             }
             String line = scanner.nextLine().trim();
 
-            if (line.equalsIgnoreCase("quit")) {
+            if (state == State.SIGNED_OUT && line.equalsIgnoreCase("quit")) {
                 System.out.println("Goodbye!");
                 break;
             }
             try {
                 System.out.println(eval(line));
+                updateState();
+            } catch (ResponseException e) {
+                System.out.println(e.getMessage());
             } catch (Exception e) {
                 System.out.println("Something went wrong. Please try again.");
             }
@@ -38,14 +43,16 @@ public class Repl {
         System.out.print(state == State.SIGNED_OUT ? "[LOGGED_OUT] >>> " : "[LOGGED_IN] >>> ");
     }
 
-    private String eval(String line) {
-        if (line.equalsIgnoreCase("help")) {
-            return """
-                    register <USERNAME> <PASSWORD> <EMAIL> - create an account
-                    login <USERNAME> <PASSWORD> - sign in
-                    quit - exit the program
-                    help - show available commands""";
+    private String eval(String line) throws ResponseException {
+        if (state == State.SIGNED_OUT) {
+            return prelogin.eval(line);
         }
-        return "Unknown command. Type help to see available commands.";
+        return "Postlogin commands are not available yet.";
+    }
+
+    private void updateState() {
+        if (state == State.SIGNED_OUT && prelogin.getAuth() != null) {
+            state = State.SIGNED_IN;
+        }
     }
 }
