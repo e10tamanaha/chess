@@ -5,7 +5,8 @@ import java.util.List;
 
 public class PostloginClient {
     private final ServerFacade facade;
-    private String authToken;
+    private final String authToken;
+    private boolean loggedOut = false;
     private List<GameData> games = List.of();
 
     public PostloginClient(ServerFacade facade, String authToken) {
@@ -16,17 +17,29 @@ public class PostloginClient {
     public String eval(String input) throws ResponseException {
         Command cmd = Command.parse(input);
         return switch(cmd.name()) {
+            case "logout" -> logout();
             case "help" -> help();
-            case "logout" -> logout(cmd.params());
             default -> "Unknown command. Type help to see available commands.";
         };
     }
 
+    public boolean isLoggedOut() {
+        return loggedOut;
+    }
+
+    private String logout() throws ResponseException {
+        facade.logout(authToken);
+        loggedOut = true;
+        return "Logged out. Type help to see available commands.";
+    }
+
     private String help() {
         return """
-                register <USERNAME> <PASSWORD> <EMAIL> - create an account
-                login <USERNAME> <PASSWORD> - sign in
-                quit - exit the program
+                create <NAME> - create a new game
+                list - list all games
+                play <NUMBER> <WHITE|BLACK> - join a game as a color
+                observe <NUMBER> - watch a game
+                logout - sign out
                 help - show available commands""";
     }
 }

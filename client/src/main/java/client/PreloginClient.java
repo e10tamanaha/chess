@@ -18,19 +18,11 @@ public class PreloginClient {
         Command cmd = Command.parse(input);
 
         return switch (cmd.name()) {
-            case "help" -> help();
             case "register" -> register(cmd.params());
             case "login" -> login(cmd.params());
+            case "help" -> help();
             default -> "Unknown command. Type help to see available commands.";
         };
-    }
-
-    private String help() {
-        return """
-                register <USERNAME> <PASSWORD> <EMAIL> - create an account
-                login <USERNAME> <PASSWORD> - sign in
-                quit - exit the program
-                help - show available commands""";
     }
 
     private String register(String[] params) throws ResponseException {
@@ -47,5 +39,13 @@ public class PreloginClient {
         }
         auth = facade.login(params[0], params[1]);
         return "Logged in as " + auth.username() + ".";
+    }
+
+    private String help() {
+        return """
+                register <USERNAME> <PASSWORD> <EMAIL> - create an account
+                login <USERNAME> <PASSWORD> - sign in
+                quit - exit the program
+                help - show available commands""";
     }
 }
