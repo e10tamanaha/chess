@@ -18,6 +18,7 @@ public class PostloginClient {
         Command cmd = Command.parse(input);
         return switch(cmd.name()) {
             case "create" -> create(cmd.params());
+            case "list" -> list();
             case "logout" -> logout();
             case "help" -> help();
             default -> "Unknown command. Type help to see available commands.";
@@ -32,6 +33,27 @@ public class PostloginClient {
         String name = String.join(" ", params);
         facade.createGame(authToken, name);
         return "Game: " + name + " was created successfully";
+    }
+
+    private String playerName(String username) {
+        return username == null ? "-" : username;
+    }
+
+    private String list() throws ResponseException {
+        games = facade.listGames(authToken);
+
+        if (games.isEmpty()) {
+            return "No games yet. Type create <NAME> to make one.";
+        }
+
+        String list = "";
+        for (int i = 1; i < games.size() + 1; i++) {
+            list += i + ". " + games.get(i - 1).gameName() + " white: " + 
+                playerName(games.get(i - 1).whiteUsername()) + " black: " + 
+                playerName(games.get(i - 1).blackUsername()) + "\n";
+        }
+
+        return list.trim();
     }
 
     public boolean isLoggedOut() {
