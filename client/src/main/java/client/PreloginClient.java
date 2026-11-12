@@ -48,4 +48,8 @@ public class PreloginClient {
                 quit - exit the program
                 help - show available commands""";
     }
+
+    public void clearAuth() {
+        auth = null;
+    }
 }

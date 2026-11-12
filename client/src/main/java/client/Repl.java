@@ -7,6 +7,7 @@ public class Repl {
 
     private final ServerFacade facade;
     private final PreloginClient prelogin;
+    private PostloginClient postlogin;
     private final Scanner scanner = new Scanner(System.in);
     private State state = State.SIGNED_OUT;
 
@@ -47,12 +48,17 @@ public class Repl {
         if (state == State.SIGNED_OUT) {
             return prelogin.eval(line);
         }
-        return "Postlogin commands are not available yet.";
+        return postlogin.eval(line);
     }
 
     private void updateState() {
         if (state == State.SIGNED_OUT && prelogin.getAuth() != null) {
+            postlogin = new PostloginClient(facade, prelogin.getAuth().authToken());
             state = State.SIGNED_IN;
+        } else if (state == State.SIGNED_IN && postlogin.isLoggedOut()) {
+            prelogin.clearAuth();
+            postlogin = null;
+            state = State.SIGNED_OUT;
         }
     }
 }
