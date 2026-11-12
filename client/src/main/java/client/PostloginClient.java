@@ -21,6 +21,7 @@ public class PostloginClient {
             case "create" -> create(cmd.params());
             case "list" -> list();
             case "play" -> play(cmd.params());
+            case "observe" -> observe(cmd.params());
             case "logout" -> logout();
             case "help" -> help();
             default -> "Unknown command. Type help to see available commands.";
@@ -62,21 +63,8 @@ public class PostloginClient {
         if (params.length != 2) {
             return "Type in: play <NUMBER> <WHITE|BLACK>";
         }
-       
-        if (games.isEmpty()) {
-            return "Type list to see the games first";
-        }
 
-        int number;
-        try {
-            number = Integer.parseInt(params[0]);
-        } catch (NumberFormatException e) {
-            return "Game number must be a number";
-        }
-
-        if (number < 1 || number > games.size()) {
-            return "No game with that number. Type list to see the games.";
-        }
+        GameData game = findGame(params[0]);
 
         ChessGame.TeamColor color = switch (params[1].toLowerCase()) {
             case "white" -> ChessGame.TeamColor.WHITE;
@@ -87,9 +75,36 @@ public class PostloginClient {
             return "Color must be WHITE or BLACK";
         }
 
-        GameData game = games.get(number - 1);
         facade.joinGame(authToken, game.gameID(), color);
         return "Joined " + game.gameName() + " as " + params[1].toLowerCase() + ".";
+    }
+
+    private String observe(String[] params) throws ResponseException {
+        if (params.length != 1) {
+            return "Type in: observe <NUMBER>";
+        }
+
+        GameData game = findGame(params[0]);
+        return "Observing " + game.gameName() + ".";
+    }
+
+    private GameData findGame(String numberText) throws ResponseException {
+        if (games.isEmpty()) {
+            throw new ResponseException("Type list to see the games first", 0);
+        }
+
+        int number;
+        try {
+            number = Integer.parseInt(numberText);
+        } catch (NumberFormatException e) {
+            throw new ResponseException("Game number must be a number", 0);
+        }
+
+        if (number < 1 || number > games.size()) {
+            throw new ResponseException("No game with that number. Type list to see the games.", 0);
+        }
+
+        return games.get(number - 1);
     }
 
     public boolean isLoggedOut() {
