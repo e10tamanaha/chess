@@ -1,7 +1,9 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import model.GameData;
+import ui.BoardRenderer;
 import java.util.List;
 
 public class PostloginClient {
@@ -76,7 +78,8 @@ public class PostloginClient {
         }
 
         facade.joinGame(authToken, game.gameID(), color);
-        return "Joined " + game.gameName() + " as " + params[1].toLowerCase() + ".";
+        return "Joined " + game.gameName() + " as " + params[1].toLowerCase() + ".\n"
+                + BoardRenderer.draw(boardFor(game), color);
     }
 
     private String observe(String[] params) throws ResponseException {
@@ -85,7 +88,13 @@ public class PostloginClient {
         }
 
         GameData game = findGame(params[0]);
-        return "Observing " + game.gameName() + ".";
+        return "Observing " + game.gameName() + ".\n"
+                + BoardRenderer.draw(boardFor(game), ChessGame.TeamColor.WHITE);
+    }
+
+    private ChessBoard boardFor(GameData game) {
+        ChessGame chessGame = game.game() != null ? game.game() : new ChessGame();
+        return chessGame.getBoard();
     }
 
     private GameData findGame(String numberText) throws ResponseException {
@@ -111,10 +120,18 @@ public class PostloginClient {
         return loggedOut;
     }
 
-    private String logout() throws ResponseException {
-        facade.logout(authToken);
-        loggedOut = true;
-        return "Logged out. Type help to see available commands.";
+    private String logout() {
+        try {
+            facade.logout(authToken);
+            return "Logged out. Type help to see available commands.";
+        } catch (ResponseException e) {
+            if (e.statusCode() == 401) {
+                return "Your session had already expired. You are now logged out.";
+            }
+            return "Couldn't contact the server, but you've been logged out on this device.";
+        } finally {
+            loggedOut = true;
+        }
     }
 
     private String help() {

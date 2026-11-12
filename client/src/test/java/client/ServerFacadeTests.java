@@ -38,6 +38,26 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void clearPositive() throws ResponseException {
+        AuthData auth = facade.register("player1", "password", "p1@email.com");
+        facade.createGame(auth.authToken(), "game1");
+
+        assertDoesNotThrow(() -> facade.clear());
+
+        assertThrows(ResponseException.class, () -> facade.login("player1", "password"));
+        assertThrows(ResponseException.class, () -> facade.listGames(auth.authToken()));
+        AuthData newAuth = facade.register("player1", "password", "p1@email.com");
+        assertTrue(facade.listGames(newAuth.authToken()).isEmpty());
+    }
+
+    @Test
+    public void clearNegative() {
+        ServerFacade unreachable = new ServerFacade(1);
+        ResponseException e = assertThrows(ResponseException.class, unreachable::clear);
+        assertEquals("Unable to reach the server", e.getMessage());
+    }
+
+    @Test
     public void registerPositive() throws ResponseException {
         AuthData result = facade.register("player1", "password", "p1@email.com");
         assertNotNull(result);
