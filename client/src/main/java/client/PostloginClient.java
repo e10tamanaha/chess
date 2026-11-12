@@ -17,10 +17,21 @@ public class PostloginClient {
     public String eval(String input) throws ResponseException {
         Command cmd = Command.parse(input);
         return switch(cmd.name()) {
+            case "create" -> create(cmd.params());
             case "logout" -> logout();
             case "help" -> help();
             default -> "Unknown command. Type help to see available commands.";
         };
+    }
+
+    private String create(String[] params) throws ResponseException {
+        if (params.length == 0) {
+            return "Type in: create <NAME>";
+        }
+
+        String name = String.join(" ", params);
+        facade.createGame(authToken, name);
+        return "Game: " + name + " was created successfully";
     }
 
     public boolean isLoggedOut() {
