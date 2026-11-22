@@ -16,11 +16,13 @@ import static chess.ChessPiece.PieceType.*;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
+    private boolean gameOver;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
         teamTurn = TeamColor.WHITE;
+        gameOver = false;
     }
 
     /**
@@ -89,6 +91,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (gameOver) {
+            throw new InvalidMoveException("Move cannot be made because game is over");
+        }
+        
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         Collection<ChessMove> valid = validMoves(start);
@@ -246,11 +252,19 @@ public class ChessGame {
         return board;
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
     /**
      * @param o the object that is being compared with the current object
      * @return True if this and o are the same reference or their boards
-     * have equal contents and both chess games have the same team currently
-     * on their turn, False otherwise
+     * have equal contents, have the same value for gameOver, and both chess games 
+     * have the same team currently on their turn, False otherwise
      */
     @Override
     public boolean equals(Object o) {
@@ -263,15 +277,15 @@ public class ChessGame {
         }
 
         ChessGame chessGame = (ChessGame) o;
-        return board.equals(chessGame.board) && teamTurn == chessGame.teamTurn;
+        return board.equals(chessGame.board) && teamTurn == chessGame.teamTurn && gameOver == chessGame.gameOver;
     }
 
     /**
-     * @return int hash code calculating by hashing the board and teamTurn
+     * @return int hash code calculating by hashing the board, teamTurn, and gameOver
      */
     @Override
     public int hashCode() {
-        return Objects.hash(board, teamTurn);
+        return Objects.hash(board, teamTurn, gameOver);
     }
 
     /**
@@ -282,6 +296,7 @@ public class ChessGame {
         return "ChessGame{" +
                 "board=" + board +
                 ", teamTurn=" + teamTurn +
+                ", gameOver=" + gameOver +
                 '}';
     }
 }
