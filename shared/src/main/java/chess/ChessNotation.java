@@ -22,4 +22,21 @@ public class ChessNotation {
 
         return new ChessPosition(row, column);
     }
-}
+
+    public static String formatPosition(ChessPosition position) {
+        int row = position.getRow();
+        int column = position.getColumn();
+        char columnLetter = (char) ('a' + column - 1);
+
+        return "" + columnLetter + row;
+    }
+
+    public static String formatMove(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+        String promotion = (promotionPiece != null) ? " (promoted to " + promotionPiece + ")" : "";
+
+        return formatPosition(start) + " to " + formatPosition(end) + promotion;
+    }
+} 
