@@ -6,6 +6,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 
 import static ui.EscapeSequences.*;
+import java.util.Set;
 
 public class BoardRenderer {
     private static final String LIGHT_SQUARE = SET_BG_COLOR_WHITE;
@@ -14,17 +15,25 @@ public class BoardRenderer {
     private static final String BORDER_TEXT = SET_TEXT_COLOR_WHITE;
     private static final String WHITE_PIECE_TEXT = SET_TEXT_COLOR_RED;
     private static final String BLACK_PIECE_TEXT = SET_TEXT_COLOR_BLUE;
+    private static final String SELECTED_SQUARE = SET_BG_COLOR_YELLOW;
+    private static final String LEGAL_MOVE_ON_LIGHT_SQUARE = SET_BG_COLOR_PALE_GREEN;
+    private static final String LEGAL_MOVE_ON_DARK_SQUARE = SET_BG_COLOR_GREEN;
 
     private BoardRenderer() {
     }
 
     public static String draw(ChessBoard board, ChessGame.TeamColor perspective) {
+        return draw(board, perspective, null, Set.of());
+    }
+
+    public static String draw(ChessBoard board, ChessGame.TeamColor perspective, 
+        ChessPosition selectedSquare, Set<ChessPosition> targetSquares) {
         boolean white = perspective != ChessGame.TeamColor.BLACK;
         StringBuilder sb = new StringBuilder();
         sb.append(fileLabels(white)).append("\n");
         for (int i = 0; i < 8; i++) {
             int row = white ? 8 - i : i + 1;
-            sb.append(rankLine(board, row, white)).append("\n");
+            sb.append(rankLine(board, row, white, selectedSquare, targetSquares)).append("\n");
         }
         sb.append(fileLabels(white));
         return sb.toString();
@@ -42,21 +51,41 @@ public class BoardRenderer {
         return sb.toString();
     }
 
-    private static String rankLine(ChessBoard board, int row, boolean white) {
+    private static String rankLine(ChessBoard board, int row, boolean white, ChessPosition selectedSquare, 
+        Set<ChessPosition> targetSquares) {
         StringBuilder sb = new StringBuilder();
         sb.append(BORDER_BG).append(BORDER_TEXT).append(" ").append(row).append(" ");
         for (int j = 0; j < 8; j++) {
             int col = white ? j + 1 : 8 - j;
-            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-            sb.append(square(piece, row, col));
+            ChessPosition position = new ChessPosition(row, col);
+            ChessPiece piece = board.getPiece(position);
+            sb.append(square(piece, position, selectedSquare, targetSquares));
         }
         sb.append(BORDER_BG).append(BORDER_TEXT).append(" ").append(row).append(" ");
         sb.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR);
         return sb.toString();
     }
 
-    private static String square(ChessPiece piece, int row, int col) {
-        String background = (row + col) % 2 == 1 ? LIGHT_SQUARE : DARK_SQUARE;
+    private static String backgroundFor(ChessPosition position, ChessPosition selectedSquare, 
+        Set<ChessPosition> targetSquares) {
+        if (position.equals(selectedSquare)) {
+            return SELECTED_SQUARE;
+        }
+
+        int row = position.getRow();
+        int col = position.getColumn();
+        boolean isLight = (row + col) % 2 == 1;
+
+        if (targetSquares.contains(position)) {
+            return (isLight) ? LEGAL_MOVE_ON_LIGHT_SQUARE : LEGAL_MOVE_ON_DARK_SQUARE;
+        }
+
+        return (isLight) ? LIGHT_SQUARE : DARK_SQUARE;
+    }
+
+    private static String square(ChessPiece piece, ChessPosition position, ChessPosition selectedSquare, 
+        Set<ChessPosition> targetSquares) {
+        String background = backgroundFor(position, selectedSquare, targetSquares);
         if (piece == null) {
             return background + EMPTY;
         }
