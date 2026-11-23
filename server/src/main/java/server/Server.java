@@ -4,6 +4,8 @@ import io.javalin.*;
 import com.google.gson.Gson;
 import java.util.Map;
 
+import server.websocket.ConnectionManager;
+import server.websocket.WebSocketHandler;
 import dataaccess.*;
 import dataaccess.sql.*;
 import service.ClearService;
@@ -49,6 +51,14 @@ public class Server {
         javalin.post("/game", gameHandler::createGame);
         javalin.get("/game", gameHandler::listGames);
         javalin.put("/game", gameHandler::joinGame);
+
+        ConnectionManager manager = new ConnectionManager();
+        WebSocketHandler webSocketHandler = new WebSocketHandler(manager);
+        javalin.ws("/ws", (ws) -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
 
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500);
