@@ -11,13 +11,23 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import service.GameplayService;
+import service.GameplayContext;
+import service.PlayerRole;
+import service.UnauthorizedException;
+import service.BadRequestException;
+import dataaccess.DataAccessException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler{
     private final ConnectionManager manager;
     private static final Gson GSON = new Gson();
+    private final GameplayService gameplayService;
 
-    public WebSocketHandler(ConnectionManager manager) {
+    public WebSocketHandler(ConnectionManager manager, GameplayService gameplayService) {
         this.manager = manager;
+        this.gameplayService = gameplayService;
     }
 
     @Override
@@ -38,7 +48,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void routeCommand(Session session, String json) {
+    private void routeCommand(Session session, String json) throws UnauthorizedException, BadRequestException, DataAccessException {
         UserGameCommand command = GSON.fromJson(json, UserGameCommand.class);
 
         if (command == null || command.getCommandType() == null) {
@@ -53,8 +63,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void connect(Session session, UserGameCommand command) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    private String joinMessage(GameplayContext context) {
+        String username = context.username();
+        PlayerRole role = context.role();
+
+        if (role == PlayerRole.OBSERVER) {
+            return username + " joined the game as an observer";
+        } 
+
+        return username + " joined the game as " + role;
+    }
+
+    private void connect(Session session, UserGameCommand command) throws UnauthorizedException, BadRequestException, DataAccessException {
+        GameplayContext context = gameplayService.connect(command.getAuthToken(), command.getGameID());
+        int gameID = context.gameData().gameID();
+        manager.add(gameID, session);
+        manager.sendToSession(session, new LoadGameMessage(context.gameData().game()));
+        manager.broadcastExcept(gameID, session, new NotificationMessage(joinMessage(context)));
     }
 
     private void leave(Session session, UserGameCommand command) {

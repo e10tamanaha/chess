@@ -15,6 +15,7 @@ import service.Authenticator;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
+import service.GameplayService;
 
 public class Server {
 
@@ -53,7 +54,8 @@ public class Server {
         javalin.put("/game", gameHandler::joinGame);
 
         ConnectionManager manager = new ConnectionManager();
-        WebSocketHandler webSocketHandler = new WebSocketHandler(manager);
+        GameplayService gameplayService = new GameplayService(gameDAO, authenticator);
+        WebSocketHandler webSocketHandler = new WebSocketHandler(manager, gameplayService);
         javalin.ws("/ws", (ws) -> {
             ws.onConnect(webSocketHandler);
             ws.onMessage(webSocketHandler);
