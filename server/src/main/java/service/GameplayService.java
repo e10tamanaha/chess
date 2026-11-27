@@ -4,6 +4,9 @@ import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 
 public class GameplayService {
     private final GameDAO gameDAO;
@@ -16,6 +19,44 @@ public class GameplayService {
 
     public GameplayContext connect(String authToken, Integer gameID) throws UnauthorizedException, BadRequestException, DataAccessException {
         return loadContext(authToken, gameID);
+    }
+
+    public MoveResult makeMove(String authToken, Integer gameID, ChessMove move) throws UnauthorizedException, BadRequestException, DataAccessException {
+        GameplayContext context = loadContext(authToken, gameID);
+        PlayerRole role = context.role();
+
+        if (move == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        if (role == PlayerRole.OBSERVER) {
+            throw new BadRequestException("Error: observers cannot make moves");
+        }
+
+        ChessGame game = context.gameData().game();
+
+        if (game.isGameOver()) {
+            throw new BadRequestException("Error: the game is over");
+        }
+
+        if (role.teamColor() != game.getTeamTurn()) {
+            throw new BadRequestException("Error: it is not your turn");
+        }
+
+        try {
+            game.makeMove(move);
+        } catch (InvalidMoveException exception) {
+            throw new BadRequestException("Error: invalid move", exception);
+        }
+
+        GameStatus status = getStatus(game);
+
+        if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE) {
+            game.setGameOver(true);
+        }
+
+        gameDAO.updateGame(context.gameData());
+        return new MoveResult(context, status);
     }
 
     private GameplayContext loadContext(String authToken, Integer gameID) throws UnauthorizedException, BadRequestException, DataAccessException {
@@ -44,6 +85,20 @@ public class GameplayService {
             return PlayerRole.BLACK;
         } else {
             return PlayerRole.OBSERVER;
+        }
+    }
+
+    private GameStatus getStatus(ChessGame game) {
+        ChessGame.TeamColor turnColor = game.getTeamTurn();
+
+        if (game.isInCheckmate(turnColor)) {
+            return GameStatus.CHECKMATE;
+        } else if (game.isInStalemate(turnColor)) {
+            return GameStatus.STALEMATE;
+        } else if (game.isInCheck(turnColor)) {
+            return GameStatus.CHECK;
+        } else {
+            return GameStatus.NONE;
         }
     }
 }
