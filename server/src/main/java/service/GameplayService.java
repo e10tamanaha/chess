@@ -78,6 +78,33 @@ public class GameplayService {
         return context;
     }
 
+    public GameplayContext leave(String authToken, Integer gameID) throws UnauthorizedException, BadRequestException, DataAccessException {
+        GameplayContext context = loadContext(authToken, gameID);
+        GameData gameData = context.gameData();
+
+        if (context.role() == PlayerRole.WHITE) {
+            GameData updated = new GameData(
+                gameData.gameID(),
+                null,
+                gameData.blackUsername(),
+                gameData.gameName(),
+                gameData.game()
+            );
+            gameDAO.updateGame(updated);
+        } else if (context.role() == PlayerRole.BLACK) {
+            GameData updated = new GameData(
+                gameData.gameID(),
+                gameData.whiteUsername(),
+                null,
+                gameData.gameName(),
+                gameData.game()
+            );
+            gameDAO.updateGame(updated);
+        }
+
+        return context;
+    }
+
     private GameplayContext loadContext(String authToken, Integer gameID) throws UnauthorizedException, BadRequestException, DataAccessException {
         AuthData auth = authenticator.authenticate(authToken);
 

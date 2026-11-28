@@ -89,12 +89,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         manager.broadcastExcept(gameID, session, new NotificationMessage(joinMessage(context)));
     }
 
-    private void leave(Session session, UserGameCommand command) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    private void leave(Session session, UserGameCommand command) throws UnauthorizedException, BadRequestException, DataAccessException {
+        GameplayContext context = gameplayService.leave(command.getAuthToken(), command.getGameID());
+        int gameID = context.gameData().gameID();
+        manager.remove(gameID, session);
+        manager.broadcastToGame(gameID, new NotificationMessage(leaveMessage(context)));
     }
 
-    private void resign(Session session, UserGameCommand command) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    private void resign(Session session, UserGameCommand command) throws UnauthorizedException, BadRequestException, DataAccessException {
+        GameplayContext context = gameplayService.resign(command.getAuthToken(), command.getGameID());
+        int gameID = context.gameData().gameID();
+        manager.broadcastToGame(gameID, new NotificationMessage(resignMessage(context)));
     }
 
     private void makeMove(Session session, MakeMoveCommand command) throws UnauthorizedException, BadRequestException, DataAccessException {
@@ -114,9 +119,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return username + " moved " + ChessNotation.formatMove(move);
     }
 
+    private String opponentName(GameplayContext context) {
+        return context.role() == PlayerRole.WHITE ? 
+            context.gameData().blackUsername() : context.gameData().whiteUsername();
+    }
+
     private String statusSentence(MoveResult result) {
-        String opponent = result.context().role() == PlayerRole.WHITE ? 
-            result.context().gameData().blackUsername() : result.context().gameData().whiteUsername();
+        String opponent = opponentName(result.context());
         
         return switch (result.status()) {
             case CHECK -> opponent + " is in check";
@@ -124,6 +133,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             case STALEMATE -> "Stalemate has been reached. The game is a draw";
             case NONE -> throw new IllegalStateException("Status has to be check, checkmate, or stalemate");
         };
+    }
+
+    private String resignMessage(GameplayContext context) {
+        return context.username() + " resigned. " + opponentName(context) + " wins.";
+    }
+
+    private String leaveMessage(GameplayContext context) {
+        return context.username() + " left the game.";
     }
 
     @Override
