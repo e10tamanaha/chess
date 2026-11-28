@@ -59,6 +59,25 @@ public class GameplayService {
         return new MoveResult(context, status);
     }
 
+    public GameplayContext resign(String authToken, Integer gameID) throws UnauthorizedException, BadRequestException, DataAccessException {
+        GameplayContext context = loadContext(authToken, gameID);
+
+        if (context.role() == PlayerRole.OBSERVER) {
+            throw new BadRequestException("Error: observers cannot resign");
+        }
+
+        ChessGame game = context.gameData().game();
+
+        if (game.isGameOver()) {
+            throw new BadRequestException("Error: the game is over");
+        }
+
+        game.setGameOver(true);
+        gameDAO.updateGame(context.gameData());
+
+        return context;
+    }
+
     private GameplayContext loadContext(String authToken, Integer gameID) throws UnauthorizedException, BadRequestException, DataAccessException {
         AuthData auth = authenticator.authenticate(authToken);
 
